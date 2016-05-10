@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
-#include <iostream>
 #include <stdexcept>
 #include <streambuf>
 #include <string>
@@ -26,9 +25,9 @@
 #include "vertex.h"
 
 #define UNIFORM_OBSERVER (0)
-#define UNIFORM_OBSERVER_POSITION (1)
-#define UNIFORM_OBSERVER_VELOCITY (2)
-#define UNIFORM_OBSERVER_ROTATION (3)
+#define UNIFORM_OBSERVER_POSITION (0)
+#define UNIFORM_OBSERVER_VELOCITY (1)
+#define UNIFORM_OBSERVER_ROTATION (2)
 #define UNIFORM_PROJECTION (3)
 #define UNIFORM_LIGHTSPEED (4)
 
@@ -220,8 +219,6 @@ void RenderSystem::receive(RenderEvent const& event) {
       glDrawArrays(GL_TRIANGLES, 0, model.vertices.size());
     });
   
-  std::cout << "Frame\n";
-  
   // Unset things so that the state resets.
   glDisableVertexAttribArray(ATTRIBUTE_POSITION);
   glUseProgram(0);
@@ -272,7 +269,7 @@ void fillProjection(CameraComponent& camera) {
   projectionMatrix[10] = (GLfloat) (-2 * clipProd / clipDiff);
   projectionMatrix[14] = -1;
   
-  glUniformMatrix4fv(UNIFORM_PROJECTION, 1, true, projectionMatrix);
+  glUniformMatrix4fv(UNIFORM_PROJECTION, 1, GL_TRUE, projectionMatrix);
 }
 
 void fillLightspeed() {

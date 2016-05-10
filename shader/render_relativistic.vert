@@ -50,6 +50,9 @@ float minkowskiLength(in vec4 a) {
 
 void main() {
   
+  gl_Position = projection * position;
+  
+  /*
   // Go through the history, from the newest to oldest position.
   uint i = history.length();
   vec4 lastPosition;
@@ -175,5 +178,6 @@ void main() {
   
   // Return the projected result.
   gl_Position = projection * currentPosition;
+  */
 }
 
