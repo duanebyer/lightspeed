@@ -55,18 +55,13 @@ void main() {
   vec4 lastPosition;
   vec4 nextPosition;
   vec4 currentPosition;
+  bool hasNextPosition = false;
   bool hasLastPosition = false;
-  
-  if (i == 0 || i != 0) {
-    return;
-  }
-  if (i != 0) {
-    return;
-  }
   
   while (i != 0) {
     
     --i;
+    hasNextPosition = true;
     
     vec4 nextPosition;
     Transform objectTransform = history[i];
@@ -131,13 +126,17 @@ void main() {
       // Otherwise, store the transformed position, and move to the next point
       // in the history.
       lastPosition = nextPosition;
+      hasLastPosition = true;
     }
   }
   
   // Now, take the two positions (lastPosition and nextPosition) and find the
   // intersection of the line between them with the light cone from the
   // observer.
-  if (!hasLastPosition) {
+  if (!hasNextPosition) {
+    currentPosition = vec4(0.0, 0.0, 0.0, 1.0);
+  }
+  else if (!hasLastPosition) {
     currentPosition = nextPosition;
   }
   else {

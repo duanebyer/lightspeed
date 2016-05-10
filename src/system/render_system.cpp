@@ -46,6 +46,7 @@ void destroyShader(GLuint shader);
 
 void fillObserver(BodyComponent& body);
 void fillProjection(CameraComponent& camera);
+void fillLightspeed();
 void fillTimeline(TimelineComponent<BodyComponent>& timeline, GLuint buffer);
 
 void RenderSystem::configure(
@@ -153,18 +154,6 @@ void RenderSystem::receive(
 
 void RenderSystem::receive(RenderEvent const& event) {
   
-  // First set up the viewport and clear the background.
-  glViewport(0, 0, event.viewportWidth, event.viewportHeight);
-  glClearColor(0.0, 0.0, 0.0, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  
-  // Set the shader that will be used.
-  glUseProgram(m_renderRelativisticShader);
-  
-  // Set up the attributes of the vertices.
-  glEnableVertexAttribArray(ATTRIBUTE_POSITION);
-  glVertexAttribPointer(ATTRIBUTE_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
-  
   // Find an entity with a camera component, and use it to create the projection
   // matrix. Exactly one entity should have a camera component.
   bool hasCamera = false;
@@ -191,9 +180,21 @@ void RenderSystem::receive(RenderEvent const& event) {
     throw std::runtime_error("Must have an entity with a camera component.");
   }
   
+  // First set up the viewport and clear the background.
+  glViewport(0, 0, event.viewportWidth, event.viewportHeight);
+  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  
+  // Set the shader that will be used.
+  glUseProgram(m_renderRelativisticShader);
+  
+  // Set up the attributes of the vertices.
+  glEnableVertexAttribArray(ATTRIBUTE_POSITION);
+  
   // Pass relevent data about the observer to the shader.
   fillObserver(body);
   fillProjection(camera);
+  fillLightspeed();
   
   // Loop through every entity with a timeline and model component and render
   // it.
@@ -209,6 +210,13 @@ void RenderSystem::receive(RenderEvent const& event) {
       
       fillTimeline(timeline, timelineBuffer);
       glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+      glVertexAttribPointer(
+        ATTRIBUTE_POSITION,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(Vertex),
+        0);
       glDrawArrays(GL_TRIANGLES, 0, model.vertices.size());
     });
   
@@ -267,6 +275,10 @@ void fillProjection(CameraComponent& camera) {
   glUniformMatrix4fv(UNIFORM_PROJECTION, 1, true, projectionMatrix);
 }
 
+void fillLightspeed() {
+  glUniform1f(UNIFORM_LIGHTSPEED, LIGHT_SPEED);
+}
+
 void fillTimeline(TimelineComponent<BodyComponent>& timeline, GLuint buffer) {
   
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
@@ -306,6 +318,7 @@ void fillTimeline(TimelineComponent<BodyComponent>& timeline, GLuint buffer) {
     GL_DYNAMIC_DRAW);
   
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BUFFER_TIMELINE, buffer);
 }
 
 GLuint createShader(

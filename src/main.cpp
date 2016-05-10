@@ -25,6 +25,7 @@
 #include "system/movement_system.h"
 #include "system/player_system.h"
 #include "system/render_system.h"
+#include "system/timeline_system.h"
 
 #include "texture.h"
 #include "vector.h"
@@ -242,6 +243,7 @@ void onInitialize(GLFWwindow* window) {
   systems.add<MovementSystem>();
   systems.add<PlayerSystem>();
   systems.add<RenderSystem>();
+  systems.add<TimelineSystem<BodyComponent> >();
   systems.configure();
   
   events.emit<InitializeEvent>();
