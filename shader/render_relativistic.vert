@@ -15,9 +15,9 @@ layout (std430, binding = 0) readonly buffer Timeline {
   Transform history[];
 };
 
-layout(location = 0) in uniform Transform observer;
-layout(location = 3) in uniform mat4 projection;
-layout(location = 4) in uniform float lightspeed;
+layout(location = 0) uniform Transform observer;
+layout(location = 3) uniform mat4 projection;
+layout(location = 4) uniform float lightspeed;
 
 layout(location = 0) in vec4 position;
 
@@ -37,7 +37,7 @@ vec3 applyQuaternion(in vec4 quaternion, in vec3 p) {
   result.xyz = intermediate.w * inverse.xyz + inverse.w * intermediate.xyz +
                cross(intermediate.xyz, inverse.xyz);
   
-  return result;
+  return result.xyz;
 }
 
 float minkowskiDot(in vec4 a, in vec4 b) {
@@ -57,7 +57,15 @@ void main() {
   vec4 currentPosition;
   bool hasLastPosition = false;
   
+  if (i == 0 || i != 0) {
+    return;
+  }
+  if (i != 0) {
+    return;
+  }
+  
   while (i != 0) {
+    
     --i;
     
     vec4 nextPosition;
@@ -146,10 +154,10 @@ void main() {
       float s2 = (-b - sqrt(discriminant)) / (2.0 * a);
       vec4 intersection1 = lastPosition + s1 * dir;
       vec4 intersection2 = lastPosition + s2 * dir;
-      if (intersection2.w <= observer.w) {
+      if (intersection2.w <= observer.position.w) {
         currentPosition = intersection2;
       }
-      else if (intersection1.w <= observer.w) {
+      else if (intersection1.w <= observer.position.w) {
         currentPosition = intersection1;
       }
       else {

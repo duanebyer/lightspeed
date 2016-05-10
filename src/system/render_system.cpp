@@ -3,8 +3,9 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
-#include <sstream>
+#include <iostream>
 #include <stdexcept>
+#include <streambuf>
 #include <string>
 #include <vector>
 
@@ -62,6 +63,11 @@ void RenderSystem::configure(
   
   events.subscribe<entityx::ComponentAddedEvent<ModelComponent> >(*this);
   events.subscribe<entityx::ComponentRemovedEvent<ModelComponent> >(*this);
+  
+  events.subscribe<entityx::ComponentAddedEvent<
+    TimelineComponent<BodyComponent> > >(*this);
+  events.subscribe<entityx::ComponentRemovedEvent<
+    TimelineComponent<BodyComponent> > >(*this);
 }
 
 void RenderSystem::update(
@@ -73,19 +79,19 @@ void RenderSystem::update(
 void RenderSystem::receive(InitializeEvent const& event) {
   
   // Create the shaders.
-  std::string renderInstantShaderFilenames[] = {
+  std::string renderRelativisticShaderFilenames[] = {
     "render_relativistic.vert",
     "render_relativistic.frag"
   };
-  GLenum renderInstantShaderTypes[] = {
+  GLenum renderRelativisticShaderTypes[] = {
     GL_VERTEX_SHADER,
     GL_FRAGMENT_SHADER
   };
   
   m_renderRelativisticShader = createShader(
     2,
-    renderInstantShaderTypes,
-    renderInstantShaderFilenames
+    renderRelativisticShaderTypes,
+    renderRelativisticShaderFilenames
   );
 }
 
@@ -206,6 +212,8 @@ void RenderSystem::receive(RenderEvent const& event) {
       glDrawArrays(GL_TRIANGLES, 0, model.vertices.size());
     });
   
+  std::cout << "Frame\n";
+  
   // Unset things so that the state resets.
   glDisableVertexAttribArray(ATTRIBUTE_POSITION);
   glUseProgram(0);
@@ -313,12 +321,13 @@ GLuint createShader(
     
     // Load the file and put its contents into a string.
     std::ifstream file(fileNames[i]);
-    std::stringstream stream;
-    stream << file;
+    std::string fileContents(
+      (std::istreambuf_iterator<char>(file)),
+      (std::istreambuf_iterator<char>()));
     
     // Create and compile the shader.
     shaders[i] = glCreateShader(shaderTypes[i]);
-    GLchar const* sourceChars = stream.str().c_str();
+    GLchar const* sourceChars = fileContents.c_str();
     glShaderSource(shaders[i], 1, &sourceChars, NULL);
     glCompileShader(shaders[i]);
     
