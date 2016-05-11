@@ -258,7 +258,7 @@ void fillProjection(CameraComponent& camera) {
   // Calculate the projection matrix and pass it to the shader.
   GLfloat projectionMatrix[16] = { 0.0 };
   
-  double cotHorz = 1.0 / std::tan(camera.fov * camera.aspectRatio / 2.0);
+  double cotHorz = 1.0 / std::tan(camera.fov / camera.aspectRatio / 2.0);
   double cotVert = 1.0 / std::tan(camera.fov / 2.0);
   double clipDiff = camera.clipFar - camera.clipNear;
   double clipSum = camera.clipFar + camera.clipNear;

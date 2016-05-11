@@ -161,7 +161,7 @@ void createPlayer() {
   entityx::Entity player = entities.create();
   player.assign<AccelerationComponent>();
   player.assign<BodyComponent>();
-  player.assign<CameraComponent>();
+  player.assign<CameraComponent>(M_PI / 4.0, 0.75, 0.5, 1000.0);
   player.assign<PlayerComponent>(
     GLFW_KEY_W,
     GLFW_KEY_S,

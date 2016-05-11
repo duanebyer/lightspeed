@@ -80,15 +80,15 @@ void main() {
     
     // Then apply the scaling along the velocity direction due to length
     // contraction of the object.
-    float objectBeta = length(objectVelocity) / lightspeed;
-    vec3 objectVelDir = normalize(objectVelocity.xyz);
+    vec3 objectBeta = objectVelocity / lightspeed;
+    vec3 objectBetaDir = normalize(objectBeta);
     if (objectBeta == 0.0) {
-      objectVelDir = vec3(1.0, 0.0, 0.0);
+      objectBetaDir = vec3(1.0, 0.0, 0.0);
     }
-    float scaleFactor = sqrt(1.0 - objectBeta * objectBeta);
+    float scaleFactor = sqrt(1.0 - dot(objectBeta, objectBeta));
     
-    vec3 parallelComponent = dot(objectVelDir, nextPosition.xyz) *
-                             objectVelDir;
+    vec3 parallelComponent = dot(objectBetaDir, nextPosition.xyz) *
+                             objectBetaDir;
     vec3 perpendicularComponent = nextPosition.xyz - parallelComponent;
     nextPosition.xyz = perpendicularComponent +
                        scaleFactor * parallelComponent;
@@ -104,43 +104,42 @@ void main() {
     
     // Then the point is translated.
     nextPosition -= observer.position;
-    /*
-    // Then the boost/Lorentz transformation is applied.
-    float beta = length(observerVelocity) / lightspeed;
-    vec3 velDir = normalize(observerVelocity.xyz);
-    if (beta == 0.0) {
-      velDir = vec3(1.0, 0.0, 0.0);
-    }
-    float gamma = 1.0 / sqrt(1.0 - beta * beta);
     
-    parallelComponent = dot(velDir, nextPosition.xyz) * velDir;
+    // Then the boost/Lorentz transformation is applied.
+    vec3 beta = observerVelocity / lightspeed;
+    vec3 betaDir = normalize(beta);
+    if (beta.x == 0.0 && beta.y == 0.0 && beta.z == 0.0) {
+      betaDir = vec3(1.0, 0.0, 0.0);
+    }
+    float gamma = 1.0 / sqrt(1.0 - dot(beta, beta));
+    
+    parallelComponent = dot(betaDir, nextPosition.xyz) * betaDir;
     perpendicularComponent = nextPosition.xyz - parallelComponent;
+    float timeComponent = nextPosition.w;
     
     // These are just the Lorentz transforms in 3 spatial dimensions.
     nextPosition.xyz =
       perpendicularComponent +
-      gamma * (parallelComponent - observerVelocity.xyz * nextPosition.w);
+      gamma * (parallelComponent - observerVelocity * timeComponent);
     nextPosition.w =
-      gamma * (nextPosition.w -
-               dot(beta * velDir, parallelComponent) / lightspeed);
-    */
+      gamma * (timeComponent - dot(beta, parallelComponent) / lightspeed);
+    
     // Finally, the transformed position is rotated.
     vec4 inverse;
     inverse.w = observer.rotation.w;
     inverse.xyz = -observer.rotation.xyz;
     inverse /= dot(inverse, observer.rotation);
     nextPosition.xyz = applyQuaternion(inverse, nextPosition.xyz);
-    /*
+    
     // Now we check to see if the transformed position is timelike. If it is
     // timelike, then the light from the position has reached the observer.
     if (minkowskiLength(nextPosition) > 0.0) {
       break;
     }
-    */
+    
     hasNextPosition = true;
-    break;
   }
-  /*
+  
   // Now, take the two positions (lastPosition and nextPosition) and find the
   // intersection of the line between them with the light cone from the
   // observer.
@@ -187,8 +186,5 @@ void main() {
   
   // Return the projected result.
   gl_Position = projection * currentPosition;
-  */
-  nextPosition.w = 1.0;
-  gl_Position = projection * nextPosition;
 }
 
