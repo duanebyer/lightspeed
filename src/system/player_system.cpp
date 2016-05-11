@@ -47,8 +47,8 @@ void PlayerSystem::update(
       Quaternion yawRotation(
         std::cos(player.yaw),
         std::sin(player.yaw) * Vector(0.0, 1.0, 0.0));
-      
-      body.rotation = (yawRotation * pitchRotation).unit();
+      Quaternion totalRotation = yawRotation * pitchRotation;
+      body.rotation = totalRotation.unit();
     });
   
   // Now go through every entity that has a player component and an acceleration
@@ -64,10 +64,10 @@ void PlayerSystem::update(
       // of the player.
       Vector acc;
       if (player.forwardKeyPressed) {
-        acc += Vector(0.0, 0.0, 1.0);
+        acc -= Vector(0.0, 0.0, 1.0);
       }
       if (player.backwardKeyPressed) {
-        acc -= Vector(0.0, 0.0, 1.0);
+        acc += Vector(0.0, 0.0, 1.0);
       }
       if (player.rightKeyPressed) {
         acc += Vector(1.0, 0.0, 0.0);
@@ -75,11 +75,12 @@ void PlayerSystem::update(
       if (player.leftKeyPressed) {
         acc -= Vector(1.0, 0.0, 0.0);
       }
-      acc = player.acceleration * acc.unit();
-      
-      // Now the acceleration vector is rotation according to the body's
-      // rotation.
-      acc = body.rotation.rotate(acc);
+      if (acc.normSq() != 0.0) {
+        acc = player.acceleration * acc.unit();
+        // Now the acceleration vector is rotated according to the body's
+        // rotation.
+        acc = body.rotation.rotate(acc);
+      }
       
       acceleration.acceleration = acc;
     });
@@ -130,15 +131,15 @@ void PlayerSystem::receive(MousePositionEvent const& event) {
       // Adjust the yaw and pitch of the player based on how the mouse has
       // shifted.
       player.yaw += player.sensitivity * deltaX;
-      player.pitch += player.sensitivity * deltaY;
+      player.pitch -= player.sensitivity * deltaY;
       
       // Make sure that the pitch doesn't go out of bounds (-90 degrees to +90
       // degrees).
-      if (player.pitch > +M_PI / 2.0) {
-        player.pitch = +M_PI / 2.0;
+      if (player.pitch > M_PI) {
+        player.pitch = M_PI;
       }
-      if (player.pitch < -M_PI / 2.0) {
-        player.pitch = -M_PI / 2.0;
+      if (player.pitch < 0.0) {
+        player.pitch = 0.0;
       }
       
       // Wrap the yaw around so that the number doesn't become too big.

@@ -13,7 +13,7 @@ void MovementSystem::update(
   
   entities.each<BodyComponent>(
     [delta](entityx::Entity entity, BodyComponent& body) {
-      body.position += body.velocity;
+      body.position += body.momentum * LIGHT_SPEED / body.energy;
   });
 }
 

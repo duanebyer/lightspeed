@@ -22,24 +22,14 @@ void AccelerationSystem::update(
         BodyComponent& body,
         AccelerationComponent& acceleration) {
       
-      // First, divide the velocity into components parallel and perpendicular
-      // to the acceleration.
-      Vector accelerationDir = acceleration.acceleration.unit();
-      Vector beta = body.velocity / LIGHT_SPEED;
-      Vector betaParallel = beta.dot(accelerationDir) * accelerationDir;
-      Vector betaPerpendicular = beta - betaParallel;
+      // The momentum of the particle should be increased based on the
+      // acceleration that the particle is experiencing.
+      body.momentum += delta * acceleration.acceleration;
       
-      // Calculate gamma as well as the perpendicular gamma factor.
-      double gamma = 1.0 / std::sqrt(1.0 - beta.normSq());
-      double gammaPerpendicular =
-        1.0 / std::sqrt(1.0 - betaPerpendicular.normSq());
-      
-      // Calculate the change in the velocity.
-      Vector deltaV =
-        delta *
-        (gammaPerpendicular / (gamma * gamma * gamma)) *
-        acceleration.acceleration;
-      body.velocity += deltaV;
+      // Then, the energy should be adjusted so that the energy-momentum
+      // relationship is still satisfied.
+      body.energy = std::sqrt(
+        LIGHT_SPEED * LIGHT_SPEED + body.momentum.normSq());
     });
 }
 

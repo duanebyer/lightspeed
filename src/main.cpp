@@ -151,7 +151,7 @@ void createScene() {
   // Create 121 boxes arrayed in a grid.
   for (int i = -5; i <= +5; ++i) {
     for (int j = -5; j <= +5; ++j) {
-      createBox(Vector(i, j, -10.0), Vector(0.5, 0.5, 0.5));
+      createBox(Vector(i, j, -5.0), Vector(0.5, 0.5, 0.5));
     }
   }
 }
@@ -167,7 +167,7 @@ void createPlayer() {
     GLFW_KEY_S,
     GLFW_KEY_A,
     GLFW_KEY_D,
-    1.0,
+    0.002,
     1.0);
 }
 

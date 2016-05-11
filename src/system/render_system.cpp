@@ -234,11 +234,11 @@ void fillObserver(BodyComponent& body) {
     0.0
   };
   
-  GLfloat velocity[4] = {
-    (GLfloat) body.velocity.x,
-    (GLfloat) body.velocity.y,
-    (GLfloat) body.velocity.z,
-    0.0
+  GLfloat momentum[4] = {
+    (GLfloat) body.momentum.x,
+    (GLfloat) body.momentum.y,
+    (GLfloat) body.momentum.z,
+    (GLfloat) body.energy
   };
   
   GLfloat rotation[4] = {
@@ -249,7 +249,7 @@ void fillObserver(BodyComponent& body) {
   };
   
   glUniform4fv(UNIFORM_OBSERVER_POSITION, 1, position);
-  glUniform4fv(UNIFORM_OBSERVER_VELOCITY, 1, velocity);
+  glUniform4fv(UNIFORM_OBSERVER_VELOCITY, 1, momentum);
   glUniform4fv(UNIFORM_OBSERVER_ROTATION, 1, rotation);
 }
 
@@ -289,8 +289,9 @@ void fillTimeline(TimelineComponent<BodyComponent>& timeline, GLuint buffer) {
     unsigned int dataIndex = floatsPerEntry * i;
     BodyComponent body = timeline.timeline[i].second;
     Vector position = body.position;
-    Vector velocity = body.velocity;
+    Vector momentum = body.momentum;
     Quaternion rotation = body.rotation;
+    double energy = body.energy;
     double time = timeline.timeline[i].first;
     
     data[dataIndex + 0] = (GLfloat) position.x;
@@ -298,10 +299,10 @@ void fillTimeline(TimelineComponent<BodyComponent>& timeline, GLuint buffer) {
     data[dataIndex + 2] = (GLfloat) position.z;
     data[dataIndex + 3] = (GLfloat) time;
     
-    data[dataIndex + 4] = (GLfloat) velocity.x;
-    data[dataIndex + 5] = (GLfloat) velocity.y;
-    data[dataIndex + 6] = (GLfloat) velocity.z;
-    data[dataIndex + 7] = 0.0;
+    data[dataIndex + 4] = (GLfloat) momentum.x;
+    data[dataIndex + 5] = (GLfloat) momentum.y;
+    data[dataIndex + 6] = (GLfloat) momentum.z;
+    data[dataIndex + 7] = energy;
     
     data[dataIndex + 8] = (GLfloat) rotation.pure.x;
     data[dataIndex + 9] = (GLfloat) rotation.pure.y;

@@ -70,7 +70,7 @@ double Quaternion::norm() const {
 }
 
 double Quaternion::normSq() const {
-  return dot(conjugate());
+  return real * real + pure.normSq();
 }
 
 Quaternion Quaternion::unit() const {
