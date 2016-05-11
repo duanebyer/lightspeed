@@ -75,6 +75,12 @@ void PlayerSystem::update(
       if (player.leftKeyPressed) {
         acc -= Vector(1.0, 0.0, 0.0);
       }
+      if (player.upKeyPressed) {
+        acc += Vector(0.0, 1.0, 0.0);
+      }
+      if (player.downKeyPressed) {
+        acc -= Vector(0.0, 1.0, 0.0);
+      }
       if (acc.normSq() != 0.0) {
         acc = player.acceleration * acc.unit();
         // Now the acceleration vector is rotated according to the body's
@@ -107,6 +113,12 @@ void PlayerSystem::receive(KeyboardEvent const& event) {
       }
       if (event.key == player.rightKey) {
         player.rightKeyPressed = pressed;
+      }
+      if (event.key == player.upKey) {
+        player.upKeyPressed = pressed;
+      }
+      if (event.key == player.downKey) {
+        player.downKeyPressed = pressed;
       }
     });
 }

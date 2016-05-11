@@ -167,8 +167,10 @@ void createPlayer() {
     GLFW_KEY_S,
     GLFW_KEY_A,
     GLFW_KEY_D,
+    GLFW_KEY_LEFT_SHIFT,
+    GLFW_KEY_LEFT_CONTROL,
     0.002,
-    1.0);
+    0.5);
 }
 
 void createBox(Vector position, Vector dimensions) {

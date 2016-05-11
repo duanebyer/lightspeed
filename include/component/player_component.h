@@ -10,6 +10,8 @@ struct PlayerComponent final {
       int backwardKey,
       int leftKey,
       int rightKey,
+      int upKey,
+      int downKey,
       double sensitivity,
       double acceleration) :
       sensitivity(sensitivity),
@@ -20,10 +22,14 @@ struct PlayerComponent final {
       backwardKey(backwardKey),
       leftKey(leftKey),
       rightKey(rightKey),
+      upKey(upKey),
+      downKey(downKey),
       forwardKeyPressed(false),
       backwardKeyPressed(false),
       leftKeyPressed(false),
-      rightKeyPressed(false) {
+      rightKeyPressed(false),
+      upKeyPressed(false),
+      downKeyPressed(false) {
   }
   
   double sensitivity;
@@ -36,11 +42,15 @@ struct PlayerComponent final {
   int backwardKey;
   int leftKey;
   int rightKey;
+  int upKey;
+  int downKey;
   
   bool forwardKeyPressed;
   bool backwardKeyPressed;
   bool leftKeyPressed;
   bool rightKeyPressed;
+  bool upKeyPressed;
+  bool downKeyPressed;
   
 };
 
