@@ -5,8 +5,9 @@ struct Transform {
   // Position is a 4 vector storing the 3 dimensional location of the body
   // as well as the time.
   vec4 position;
-  // Velocity stores the ordinary linear velocity of the body at that time.
-  vec3 velocity;
+  // Velocity stores the ordinary linear velocity of the body at that time. The
+  // fourth component is always 0.
+  vec4 velocity;
   // Rotation stores a quaternion representing the rotation at that time.
   vec4 rotation;
 };
@@ -21,23 +22,23 @@ layout(location = 4) uniform float lightspeed;
 
 layout(location = 0) in vec4 position;
 
+vec4 quaternionProduct(in vec4 a, in vec4 b) {
+  vec4 result = vec4(a.w * b.xyz + b.w * a.xyz + cross(a.xyz, b.xyz),
+                     a.w * b.w - dot(a.xyz, b.xyz));
+  return result;
+}
+
+vec4 quaternionConjugate(in vec4 a) {
+  return vec4(-a.xyz, a.w);
+}
+
+vec4 quaternionInverse(in vec4 a) {
+  return quaternionConjugate(a) / dot(a, a);
+}
+
 vec3 applyQuaternion(in vec4 quaternion, in vec3 p) {
-  vec4 intermediate;
-  vec4 result;
-  vec4 inverse;
-  
-  inverse.w = quaternion.w;
-  inverse.xyz = -quaternion.xyz;
-  inverse /= dot(quaternion, inverse);
-  
-  intermediate.w = -dot(quaternion.xyz, p);
-  intermediate.xyz = quaternion.w * p + cross(quaternion.xyz, p);
-  
-  result.w = intermediate.w * inverse.w - dot(intermediate.xyz, inverse.xyz);
-  result.xyz = intermediate.w * inverse.xyz + inverse.w * intermediate.xyz +
-               cross(intermediate.xyz, inverse.xyz);
-  
-  return result.xyz;
+  return quaternionProduct(quaternionProduct(quaternion, vec4(p, 0.0)),
+                           quaternionInverse(quaternion)).xyz;
 }
 
 float minkowskiDot(in vec4 a, in vec4 b) {
@@ -49,10 +50,16 @@ float minkowskiLength(in vec4 a) {
 }
 
 void main() {
-  
-  gl_Position = projection * position;
-  
   /*
+  if (history.length() != 0) {
+    Transform objectTransform = history[history.length() - 1];
+    vec4 nextPosition = vec4(0.0);
+    nextPosition.xyz = applyQuaternion(objectTransform.rotation, position.xyz);
+    nextPosition += objectTransform.position;
+    nextPosition.w = 1.0;
+    gl_Position = projection * nextPosition;
+  }*/
+  
   // Go through the history, from the newest to oldest position.
   uint i = history.length();
   vec4 lastPosition;
@@ -60,17 +67,19 @@ void main() {
   vec4 currentPosition;
   bool hasNextPosition = false;
   bool hasLastPosition = false;
+  bool intersectsCone = false;
   
   while (i != 0) {
     
     --i;
-    hasNextPosition = true;
     
-    vec4 nextPosition;
+    if (hasNextPosition) {
+      lastPosition = nextPosition;
+      hasLastPosition = true;
+    }
+    
+    nextPosition = vec4(0.0);
     Transform objectTransform = history[i];
-    
-    // The w coordinate is used to represent time.
-    nextPosition.w = position.w;
     
     // Perform the rotation first.
     nextPosition.xyz = applyQuaternion(objectTransform.rotation, position.xyz);
@@ -78,7 +87,7 @@ void main() {
     // Then apply the scaling along the velocity direction due to length
     // contraction of the object.
     float objectBeta = length(objectTransform.velocity) / lightspeed;
-    vec3 objectVelDir = normalize(objectTransform.velocity);
+    vec3 objectVelDir = normalize(objectTransform.velocity.xyz);
     float scaleFactor = sqrt(1.0 - objectBeta * objectBeta);
     
     vec3 parallelComponent = dot(objectVelDir, nextPosition.xyz) *
@@ -86,7 +95,7 @@ void main() {
     vec3 perpendicularComponent = nextPosition.xyz - parallelComponent;
     
     nextPosition.xyz = perpendicularComponent +
-                              scaleFactor * parallelComponent;
+                       scaleFactor * parallelComponent;
     
     // Finally, translate the object to the position it should be in.
     nextPosition += objectTransform.position;
@@ -99,7 +108,7 @@ void main() {
     
     // Then the boost/Lorentz transformation is applied.
     float beta = length(observer.velocity) / lightspeed;
-    vec3 velDir = normalize(observer.velocity);
+    vec3 velDir = normalize(observer.velocity.xyz);
     float gamma = 1.0 / sqrt(1.0 - beta * beta);
     
     parallelComponent = dot(velDir, nextPosition.xyz) * velDir;
@@ -108,7 +117,7 @@ void main() {
     // These are just the Lorentz transforms in 3 spatial dimensions.
     nextPosition.xyz =
       perpendicularComponent +
-      gamma * (parallelComponent - observer.velocity * nextPosition.w);
+      gamma * (parallelComponent - observer.velocity.xyz * nextPosition.w);
     nextPosition.w =
       gamma * (nextPosition.w -
                dot(beta * velDir, parallelComponent) / lightspeed);
@@ -125,24 +134,15 @@ void main() {
     if (minkowskiLength(nextPosition) > 0.0) {
       break;
     }
-    else {
-      // Otherwise, store the transformed position, and move to the next point
-      // in the history.
-      lastPosition = nextPosition;
-      hasLastPosition = true;
-    }
+    
+    hasNextPosition = true;
   }
   
   // Now, take the two positions (lastPosition and nextPosition) and find the
   // intersection of the line between them with the light cone from the
   // observer.
-  if (!hasNextPosition) {
-    currentPosition = vec4(0.0, 0.0, 0.0, 1.0);
-  }
-  else if (!hasLastPosition) {
-    currentPosition = nextPosition;
-  }
-  else {
+  
+  if (hasLastPosition && hasNextPosition) {
     vec4 dir = nextPosition - lastPosition;
     float a = minkowskiLength(dir);
     float b = 2.0 * minkowskiDot(dir, lastPosition);
@@ -167,6 +167,12 @@ void main() {
       }
     }
   }
+  else if (hasNextPosition) {
+    currentPosition = nextPosition;
+  }
+  else {
+    currentPosition = vec4(0.0);
+  }
   
   // The currentPosition variable stores the location that the vertex appears
   // to be at, taking into account the travel time of light. At this point,
@@ -178,6 +184,5 @@ void main() {
   
   // Return the projected result.
   gl_Position = projection * currentPosition;
-  */
 }
 

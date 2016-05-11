@@ -151,10 +151,9 @@ void createScene() {
   // Create 121 boxes arrayed in a grid.
   for (int i = -5; i <= +5; ++i) {
     for (int j = -5; j <= +5; ++j) {
-      createBox(Vector(i, j, 10.0), Vector(0.5, 0.5, 0.5));
+      createBox(Vector(i, j, -10.0), Vector(0.5, 0.5, 0.5));
     }
   }
-  
 }
 
 void createPlayer() {
@@ -232,7 +231,7 @@ void createBox(Vector position, Vector dimensions) {
   std::initializer_list<Texture*> textures = { NULL };
   
   entityx::Entity box = entities.create();
-  box.assign<BodyComponent>(position, Quaternion(), Vector());
+  box.assign<BodyComponent>(position, Quaternion(1.0, Vector()), Vector());
   box.assign<ModelComponent>(vertices, textures);
   box.assign<TimelineComponent<BodyComponent> >(10.0);
 }

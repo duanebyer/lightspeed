@@ -234,10 +234,11 @@ void fillObserver(BodyComponent& body) {
     0.0
   };
   
-  GLfloat velocity[3] = {
+  GLfloat velocity[4] = {
     (GLfloat) body.velocity.x,
     (GLfloat) body.velocity.y,
-    (GLfloat) body.velocity.z
+    (GLfloat) body.velocity.z,
+    0.0
   };
   
   GLfloat rotation[4] = {
@@ -248,7 +249,7 @@ void fillObserver(BodyComponent& body) {
   };
   
   glUniform4fv(UNIFORM_OBSERVER_POSITION, 1, position);
-  glUniform3fv(UNIFORM_OBSERVER_VELOCITY, 1, velocity);
+  glUniform4fv(UNIFORM_OBSERVER_VELOCITY, 1, velocity);
   glUniform4fv(UNIFORM_OBSERVER_ROTATION, 1, rotation);
 }
 
@@ -265,9 +266,9 @@ void fillProjection(CameraComponent& camera) {
   
   projectionMatrix[0] = (GLfloat) cotHorz;
   projectionMatrix[5] = (GLfloat) cotVert;
-  projectionMatrix[9] = (GLfloat) (-clipSum / clipDiff);
-  projectionMatrix[10] = (GLfloat) (-2 * clipProd / clipDiff);
-  projectionMatrix[14] = -1;
+  projectionMatrix[10] = (GLfloat) (-clipSum / clipDiff);
+  projectionMatrix[11] = (GLfloat) (-2 * clipProd / clipDiff);
+  projectionMatrix[14] = -1.0;
   
   glUniformMatrix4fv(UNIFORM_PROJECTION, 1, GL_TRUE, projectionMatrix);
 }
