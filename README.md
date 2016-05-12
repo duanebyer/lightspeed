@@ -21,7 +21,7 @@ The project can be built using CMake. The following libraries are required:
   * OpenGL
   * GLFW
   * [entityx](https://github.com/alecthomas/entityx)
-
+ 
 ## How it works
 
 The history (position vs time) of every object in the scene is stored. Then,
@@ -30,4 +30,8 @@ frame of the player. The intersection of a null cone (centered on the player)
 with the history of the object is calculated. The intersection point is then
 rendered to the screen using OpenGL, resulting in a visual representation of the
 object as it would be seen by the observer.
+
+## Images
+---
+![](https://raw.githubusercontent.com/duanebyer/lightspeed/master/images/image_0.png)
 
