@@ -32,6 +32,6 @@ rendered to the screen using OpenGL, resulting in a visual representation of the
 object as it would be seen by the observer.
 
 ## Images
----
+
 ![](https://raw.githubusercontent.com/duanebyer/lightspeed/master/images/image_0.png)
 
