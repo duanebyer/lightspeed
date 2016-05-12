@@ -24,6 +24,7 @@
 #include "system/acceleration_system.h"
 #include "system/movement_system.h"
 #include "system/player_system.h"
+#include "system/relativistic_update_system.h"
 #include "system/render_system.h"
 #include "system/timeline_system.h"
 
@@ -243,6 +244,7 @@ void onInitialize(GLFWwindow* window) {
   systems.add<AccelerationSystem>();
   systems.add<MovementSystem>();
   systems.add<PlayerSystem>();
+  systems.add<RelativisticUpdateSystem>();
   systems.add<RenderSystem>();
   systems.add<TimelineSystem<BodyComponent> >();
   systems.configure();

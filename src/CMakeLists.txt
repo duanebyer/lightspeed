@@ -7,6 +7,7 @@ set(
   system/acceleration_system.cpp
   system/movement_system.cpp
   system/player_system.cpp
+  system/relativistic_update_system.cpp
   system/render_system.cpp
 )
 
