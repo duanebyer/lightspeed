@@ -21,4 +21,8 @@ The project can be built using CMake. The following libraries are required:
   * OpenGL
   * GLFW
   * [entityx](https://github.com/alecthomas/entityx)
+ 
+## Images
+---
+![](https://raw.githubusercontent.com/duanebyer/lightspeed/master/images/image_0.png)
 
