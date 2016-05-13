@@ -22,6 +22,13 @@ The project can be built using CMake. The following libraries are required:
   * GLFW
   * [entityx](https://github.com/alecthomas/entityx)
 
+## Controls
+
+The simulation can be controlled by using the mouse to move the camera, the
+W and S keys to move the camera forward and backward, the A and D keys to
+strafe the camera left and right, and the left Shift and Control keys to
+move the camera vertically.
+
 ## How it works
 
 The history (position vs time) of every object in the scene is stored. Then,
